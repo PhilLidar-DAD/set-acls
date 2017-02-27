@@ -221,12 +221,12 @@ if __name__ == "__main__":
         file_list = []
         for root, dirs, files in os.walk(filedir_path):
 
-            all_dirs = ["."] + dirs
+            # all_dirs = ["."] + dirs
 
             # for dirname in all_dirs:
             #     _apply_acl(root, dirname)
 
-            dir_list += [os.path.join(root, dirname) for dirname in all_dirs]
+            dir_list.append(root)
             file_list += [os.path.join(root, filename) for filename in files]
 
         # Apply ACLs to folders 1st
