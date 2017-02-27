@@ -19,5 +19,9 @@ USERDIR="$BASEDIR/$USERNAME"
 sudo mkdir -p "$USERDIR/DL/DAD/manual_requests"
 sudo mkdir -p "$USERDIR/DL/DAD/lipad_requests"
 
+# Link FAQ.txt
+cd "$USERDIR"
+ln -sf ../FAQ.txt ./
+
 # Set acls
 sudo /srv/scripts/set_acls/set_posix_acls.py "$USERDIR"
