@@ -165,8 +165,6 @@ def _setup_logging(args):
 def _parse_arguments():
     # Parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--version", action="version",
-                        version=_version)
     parser.add_argument("-v", "--verbose", action="count")
     parser.add_argument("-fo", "--folder-only", action="store_true")
     parser.add_argument("filedir_path")
