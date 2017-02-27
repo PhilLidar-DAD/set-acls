@@ -200,9 +200,6 @@ if __name__ == "__main__":
     # Load permissions from CSV and convert to ACLs
     ACLS, SEARCH_PATHS = _load_acls()
 
-    # Initialize pool
-    pool = multiprocessing.Pool()
-
     # Get file/dir path
     filedir_path = os.path.abspath(args.filedir_path)
     _logger.info("Target path: %s", filedir_path)
@@ -226,8 +223,12 @@ if __name__ == "__main__":
             # for dirname in all_dirs:
             #     _apply_acl(root, dirname)
 
+            _logger.info('%s', root)
             dir_list.append(root)
             file_list += [os.path.join(root, filename) for filename in files]
+
+        # Initialize pool
+        pool = multiprocessing.Pool()
 
         # Apply ACLs to folders 1st
         dir_procs = pool.map_async(_apply_acl, dir_list)
@@ -240,8 +241,8 @@ if __name__ == "__main__":
         file_procs = pool.map_async(_apply_acl, file_list)
         file_procs.wait()
 
+        pool.close()
+
     else:
         _logger.error("%s doesn't exist! Exiting.", filedir_path)
         exit(1)
-
-    pool.close()
