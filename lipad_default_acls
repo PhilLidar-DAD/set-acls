@@ -1,0 +1,8 @@
+# owner: datamanager
+# group: data-managrs
+         user:1001:rwxpD-aARWc---:fd----:allow
+   user:cephaccess:rwxpD-aARWc---:fd----:allow
+     group:dad-all:rwxpD-aARWc---:fd----:allow
+            owner@:rwxpDdaARWcCos:fd----:allow
+            group@:rwxpDdaARWcCos:fd----:allow
+         everyone@:rwxpDdaARWcCos:fd----:deny
