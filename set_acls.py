@@ -230,6 +230,7 @@ if __name__ == "__main__":
             file_list += [os.path.join(root, filename) for filename in files]
 
         # Initialize pool
+        _logger.info('WORKERS: %s', WORKERS)
         pool = multiprocessing.Pool(processes=WORKERS)
 
         # Apply ACLs to folders 1st
