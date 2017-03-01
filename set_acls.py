@@ -207,7 +207,7 @@ if __name__ == "__main__":
     if os.path.isfile(filedir_path) or args.folder_only:
 
         # Process file
-        _apply_acl(*os.path.split(filedir_path))
+        _apply_acl(filedir_path)
 
     elif os.path.isdir(filedir_path):
 
