@@ -18,6 +18,8 @@ OWN_USR = "datamanager"
 OWN_GRP = "data-managrs"
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 ACLS_CSV = os.path.join(BASE_DIR, 'acls.csv')
+CPU_USAGE = .5
+WORKERS = int(multiprocessing.cpu_count() * CPU_USAGE)
 
 
 def _compare_tokens(fp_tokens, sp_tokens):
@@ -228,7 +230,7 @@ if __name__ == "__main__":
             file_list += [os.path.join(root, filename) for filename in files]
 
         # Initialize pool
-        pool = multiprocessing.Pool()
+        pool = multiprocessing.Pool(processes=WORKERS)
 
         # Apply ACLs to folders 1st
         dir_procs = pool.map_async(_apply_acl, dir_list)
