@@ -225,12 +225,12 @@ if __name__ == "__main__":
             # for dirname in all_dirs:
             #     _apply_acl(root, dirname)
 
+        _logger.info('WORKERS: %s', WORKERS)
             _logger.info('%s', root)
             dir_list.append(root)
             file_list += [os.path.join(root, filename) for filename in files]
 
         # Initialize pool
-        _logger.info('WORKERS: %s', WORKERS)
         pool = multiprocessing.Pool(processes=WORKERS)
 
         # Apply ACLs to folders 1st
