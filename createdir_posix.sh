@@ -24,4 +24,4 @@ cd "$USERDIR"
 ln -sf ../FAQ.txt ./
 
 # Set acls
-sudo /srv/scripts/set_acls/set_posix_acls.py "$USERDIR"
+sudo /srv/scripts/sysad-tools/set-acls/set_posix_acls.py "$USERDIR"
