@@ -18,6 +18,8 @@ OWN_USR = "datamanager"
 OWN_GRP = "data-managrs"
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 ACLS_CSV = os.path.join(BASE_DIR, 'acls.csv')
+CPU_USAGE = .5
+WORKERS = int(multiprocessing.cpu_count() * CPU_USAGE)
 
 
 def _compare_tokens(fp_tokens, sp_tokens):
@@ -207,7 +209,7 @@ if __name__ == "__main__":
     if os.path.isfile(filedir_path) or args.folder_only:
 
         # Process file
-        _apply_acl(*os.path.split(filedir_path))
+        _apply_acl(filedir_path)
 
     elif os.path.isdir(filedir_path):
 
@@ -223,12 +225,13 @@ if __name__ == "__main__":
             # for dirname in all_dirs:
             #     _apply_acl(root, dirname)
 
+            _logger.info('WORKERS: %s', WORKERS)
             _logger.info('%s', root)
             dir_list.append(root)
             file_list += [os.path.join(root, filename) for filename in files]
 
         # Initialize pool
-        pool = multiprocessing.Pool()
+        pool = multiprocessing.Pool(processes=WORKERS)
 
         # Apply ACLs to folders 1st
         dir_procs = pool.map_async(_apply_acl, dir_list)
