@@ -304,6 +304,13 @@ if __name__ == '__main__':
     # Setup logging
     _setup_logging(args)
 
+    # Check posix
+    if args.posix:
+        POSIX = True
+    else:
+        POSIX = False
+    _logger.info('POSIX: %s', POSIX)
+
     # Load permissions from CSV and convert to ACLs
     ACLS, SEARCH_PATHS = _load_acls()
 
