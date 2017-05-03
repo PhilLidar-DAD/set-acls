@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from settings import *
 import argparse
 import itertools
 import logging
@@ -26,6 +25,9 @@ import multiprocessing
 import os
 import subprocess
 import sys
+
+from datetime import datetime
+from settings import *
 
 _logger = logging.getLogger()
 _LOG_LEVEL = logging.DEBUG
@@ -295,6 +297,32 @@ def _load_acls():
     return acls, search_paths
 
 
+def _apply_worker(dir_path, dir_paths):
+    try:
+        # Check if dir path exists
+        if os.path.isdir(dir_path):
+            # Apply acl on dir
+            _apply_acl(dir_path)
+            # Get process id
+            pid = multiprocessing.current_process().pid
+            _logger.info('[Worker-%s] %s', pid, dir_path)
+            # For each content inside the directory
+            for i in sorted(os.listdir(dir_path)):
+                # Get complete path
+                i_path = os.path.join(dir_path, i)
+                # Check if directory
+                if os.path.isdir(i_path):
+                    # Add dir path to queue
+                    dir_paths.put(i_path)
+                # Check if file
+                elif os.path.isfile(i_path):
+                    # Apply acl on file
+                    _apply_acl(i_path)
+    except Exception:
+        _logger.exception('Error running apply worker! (%s)', dir_path)
+    finally:
+        dir_paths.put('no-dir')
+
 if __name__ == '__main__':
 
     # Parse arguments
@@ -328,27 +356,34 @@ if __name__ == '__main__':
         # Process dir
         _logger.info('WORKERS: %s', WORKERS)
 
-        # Get dirs/files list
-        dir_list = []
-        file_list = []
-        for root, dirs, files in os.walk(filedir_path):
-
-            _logger.info('%s', root)
-            dir_list.append(root)
-            file_list += [os.path.join(root, filename) for filename in files]
-
-        # Initialize pool
+        # Initialize multiprocessing
+        start_time = datetime.now()
+        manager = multiprocessing.Manager()
         pool = multiprocessing.Pool(processes=WORKERS)
+        dir_paths = manager.Queue()
 
-        # Apply ACLs to folders 1st
-        dir_procs = pool.map_async(_apply_acl, dir_list)
-        dir_procs.wait()
+        # Traverse directories
+        counter = 1
+        dir_count = 1
+        pool.apply_async(_apply_worker, (filedir_path, dir_paths))
 
-        # Apply ACLs to files next
-        file_procs = pool.map_async(_apply_acl, file_list)
-        file_procs.wait()
+        while counter > 0:
+            _logger.debug('counter: %s', counter)
+            dir_path = dir_paths.get()
+            if dir_path == 'no-dir':
+                # dir has finished processing
+                counter -= 1
+            else:
+                # a new dir needs to be processed
+                counter += 1
+                dir_count += 1
+                pool.apply_async(_apply_worker, (dir_path, dir_paths))
 
         pool.close()
+        pool.join()
+        end_time = datetime.now()
+        _logger.info('dir_count: %s', dir_count)
+        _logger.info('Done! (%s)', end_time - start_time)
 
     else:
         _logger.error("%s doesn't exist! Exiting.", filedir_path)
