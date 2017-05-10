@@ -147,11 +147,13 @@ def _get_acl(full_path):
 
 
 def _get_lipad_acls(full_path, search_path, dir_acl):
+    _logger.debug('dir_acl: %s', repr(dir_acl))
     acl = []
-    for l in dir_acl.split('\r\n'):
-        if not 'ftp-others' in l:
+    for l in dir_acl.split('\n'):
+        _logger.debug('l: %s', l)
+        if 'ftp-others' not in l:
             acl.append(l.strip())
-
+    _logger.debug('acl: %s', acl)
     # Get username
     a = full_path.replace(PREFIX, '')
     _logger.debug('a: %s', a)
@@ -196,13 +198,19 @@ def _apply_acl(full_path):
         SUDO = []
 
     # chown file/dir
-    subprocess.call(SUDO + ['chown', OWN_USR + ':' + OWN_GRP, full_path])
+    chown_cmd = SUDO + ['chown', OWN_USR + ':' + OWN_GRP, full_path]
+    _logger.debug('chown_cmd: %s', ' '.join(chown_cmd))
+    subprocess.call(chown_cmd)
 
     # chmod file/dir
     if os.path.isdir(full_path):
-        subprocess.call(SUDO + ['chmod', '770', full_path])
+        chmod_cmd = SUDO + ['chmod', '770', full_path]
+        _logger.debug('chmod_cmd: %s', chmod_cmd)
+        subprocess.call(chmod_cmd)
     else:
-        subprocess.call(SUDO + ['chmod', '660', full_path])
+        chmod_cmd = SUDO + ['chmod', '660', full_path]
+        _logger.debug('chmod_cmd: %s', chmod_cmd)
+        subprocess.call(chmod_cmd)
 
     # Reset acls
     subprocess.call(SUDO + ['setfacl', '-b', full_path])
@@ -323,6 +331,7 @@ def _apply_worker(dir_path, dir_paths):
     finally:
         dir_paths.put('no-dir')
 
+
 if __name__ == '__main__':
 
     # Parse arguments
@@ -363,9 +372,9 @@ if __name__ == '__main__':
         dir_paths = manager.Queue()
 
         # Traverse directories
-        counter = 1
-        dir_count = 1
         pool.apply_async(_apply_worker, (filedir_path, dir_paths))
+        dir_count = 1
+        counter = 1
 
         while counter > 0:
             _logger.debug('counter: %s', counter)
