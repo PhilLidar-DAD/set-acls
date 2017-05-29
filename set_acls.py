@@ -44,7 +44,9 @@ WORKERS = int(multiprocessing.cpu_count() * CPU_USAGE)
 def _compare_tokens(fp_tokens, sp_tokens):
     match = 0
     for fp_token, sp_token in itertools.izip(fp_tokens, sp_tokens):
-        if (sp_token == '*') or (fp_token == sp_token):
+        if sp_token == '*':
+            match += .5
+        elif fp_token == sp_token:
             match += 1
         else:
             break
