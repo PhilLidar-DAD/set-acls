@@ -166,8 +166,11 @@ def _get_lipad_acls(full_path, search_path, dir_acl):
     username = tokens[1]
     _logger.debug('username: %s', username)
 
-    acl.insert(0, 'd:user:' + username + ':r-x')
-    acl.insert(0, 'user:' + username + ':r-x')
+    if POSIX:
+        acl.insert(0, 'd:user:' + username + ':r-x')
+        acl.insert(0, 'user:' + username + ':r-x')
+    else:
+        acl.insert(0, 'user:' + username + ':r-x---a-R-c---:fd-----:allow')
 
     return '\r\n'.join(acl)
 
