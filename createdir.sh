@@ -16,8 +16,8 @@ BASEDIR="/mnt/ftp_pool/FTP/Others"
 
 # Create dir
 USERDIR="$BASEDIR/$USERNAME"
-sudo mkdir -p "$USERDIR/DL/DAD/manual_requests"
-sudo mkdir -p "$USERDIR/DL/DAD/lipad_requests"
+mkdir -p "$USERDIR/DL/DAD/manual_requests"
+mkdir -p "$USERDIR/DL/DAD/lipad_requests"
 
 # Link FAQ.txt
 cd "$USERDIR"
