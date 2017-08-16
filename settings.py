@@ -9,3 +9,6 @@
 
 # ftp
 PREFIX = '/mnt/'
+
+# pl2-storage/pl2-backup
+# PREFIX = '/mnt/maria_pool/pl2_temp_backup/''

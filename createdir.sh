@@ -1,18 +1,27 @@
 #!/bin/bash
 
 USERNAME="$1"
-BASEDIR="/mnt/backup_pool/geostorage/FTP/Others"
-BASEUSER="datamanager"
-BASEGROUP="data-managrs"
-DEFAULTACLS="/mnt/backup_pool/scripts/set_acls/lipad_default_acls"
-USERACLS="user:${USERNAME}:r-x---a-R-c---:fd----:allow"
+
+# Check if username already exists
+while true; do
+    id "$USERNAME"
+    if [ $? -eq 0 ]; then
+        break
+    fi
+    echo "Username doesn't exist. Sleeping for 60s..."
+    sleep 60s
+done
+
+BASEDIR="/mnt/ftp_pool/FTP/Others"
 
 # Create dir
 USERDIR="$BASEDIR/$USERNAME"
-mkdir -p $USERDIR
+sudo mkdir -p "$USERDIR/DL/DAD/manual_requests"
+sudo mkdir -p "$USERDIR/DL/DAD/lipad_requests"
 
-#chown $BASEUSER:$BASEGROUP $USERDIR
+# Link FAQ.txt
+cd "$USERDIR"
+ln -sf ../FAQ.txt ./
 
 # Set acls
-setfacl -M $DEFAULTACLS $USERDIR
-setfacl -m $USERACLS $USERDIR
+/mnt/misc/scripts/sysad-tools/set-acls/set_acls.py "$USERDIR"
