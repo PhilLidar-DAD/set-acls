@@ -38,7 +38,8 @@ OWN_GRP = 'data-managrs'
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 ACLS_CSV = os.path.join(BASE_DIR, 'acls.csv')
 CPU_USAGE = .5
-WORKERS = int(multiprocessing.cpu_count() * CPU_USAGE)
+# WORKERS = int(multiprocessing.cpu_count() * CPU_USAGE)
+WORKERS = 1
 
 
 def _compare_tokens(fp_tokens, sp_tokens):
@@ -166,10 +167,13 @@ def _get_lipad_acls(full_path, search_path, dir_acl):
     username = tokens[1]
     _logger.debug('username: %s', username)
 
-    acl.insert(0, 'd:user:' + username + ':r-x')
-    acl.insert(0, 'user:' + username + ':r-x')
+    if POSIX:
+        acl.insert(0, 'd:user:' + username + ':r-x')
+        acl.insert(0, 'user:' + username + ':r-x')
+    else:
+        acl.insert(0, 'user:' + username + ':r-x---a-R-c---:fd----:allow')
 
-    return '\r\n'.join(acl)
+    return '\n'.join(acl)
 
 
 def _apply_acl(full_path):
@@ -230,10 +234,12 @@ def _apply_acl(full_path):
 
     # Set proper acl
     setfacl = subprocess.Popen(SUDO + ['setfacl', '-M', '-', full_path],
-                               stdin=subprocess.PIPE)
+                               stdin=subprocess.PIPE,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     file_acl = None
     if os.path.isdir(full_path):
-        setfacl.communicate(input=dir_acl)
+        stdout, stderr = setfacl.communicate(input=dir_acl)
     else:
         if POSIX:
             buf = []
@@ -249,13 +255,15 @@ def _apply_acl(full_path):
             file_acl = dir_acl.replace(':fd', ':--')
 
         _logger.debug('file_acl:\n%s', file_acl)
-        setfacl.communicate(input=file_acl)
-    returncode = setfacl.wait()
+        stdout, stderr = setfacl.communicate(input=file_acl)
 
+    returncode = setfacl.returncode
     if returncode != 0:
-        _logger.info('Error while running setfacl!')
-        _logger.info('dir_acl:\n%s', dir_acl)
-        _logger.info('file_acl:\n%s', file_acl)
+        _logger.error('Error while running setfacl!')
+        _logger.error('dir_acl:\n%s', dir_acl)
+        _logger.error('file_acl:\n%s', file_acl)
+        _logger.error('stdout:\n%s', stdout)
+        _logger.error('stderr:\n%s', stderr)
 
     # Delete last acl
     if not POSIX:
