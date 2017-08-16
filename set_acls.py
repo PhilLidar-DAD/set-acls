@@ -173,7 +173,7 @@ def _get_lipad_acls(full_path, search_path, dir_acl):
     else:
         acl.insert(0, 'user:' + username + ':r-x---a-R-c---:fd----:allow')
 
-    return '\r\n'.join(acl)
+    return '\n'.join(acl)
 
 
 def _apply_acl(full_path):
