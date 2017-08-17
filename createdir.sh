@@ -9,7 +9,7 @@ while true; do
         break
     fi
     echo "Username doesn't exist. Sleeping for 60s..."
-    sleep 60s
+    sleep 60
 done
 
 BASEDIR="/mnt/ftp_pool/FTP/Others"
