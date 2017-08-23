@@ -38,47 +38,25 @@ OWN_GRP = 'data-managrs'
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 ACLS_CSV = os.path.join(BASE_DIR, 'acls.csv')
 CPU_USAGE = .5
-# WORKERS = int(multiprocessing.cpu_count() * CPU_USAGE)
-WORKERS = 1
+WORKERS = int(multiprocessing.cpu_count() * CPU_USAGE)
+# WORKERS = 1
 
 
 def _compare_tokens(fp_tokens, sp_tokens):
     match = 0
     for fp_token, sp_token in itertools.izip(fp_tokens, sp_tokens):
         if sp_token == '*':
-            match += .5
+            match += .99
         elif fp_token == sp_token:
             match += 1
         else:
             break
-    if match == len(sp_tokens) == len(fp_tokens):
+
+    if (abs(match - len(sp_tokens)) <= 0.1
+            and len(sp_tokens) == len(fp_tokens)):
         return 255
     else:
         return match
-
-
-def _find_acl(full_path):
-    full_path_tokens = full_path.split(os.sep)[1:]
-    _logger.debug('full_path_tokens: %s', full_path_tokens)
-    max_acl = ''
-    max_sp = ''
-    max_match = 0
-    for acl, paths in sorted(ACLS.viewitems()):
-        _logger.debug('#' * 80)
-        _logger.debug('acl: {0}'.format(acl))
-        _logger.debug('paths: {0}'.format(paths))
-        for search_path in sorted(paths):
-            search_path_tokens = search_path.split(os.sep)[1:]
-            _logger.debug('search_path_tokens: %s', search_path_tokens)
-            match = _compare_tokens(full_path_tokens, search_path_tokens)
-            _logger.debug('match: %s', match)
-            if match > max_match:
-                max_match = match
-                _logger.debug('max_match: %s', max_match)
-                max_sp = search_path
-                _logger.debug('max_sp: %s', max_sp)
-                max_acl = acl
-    return max_sp, max_acl
 
 
 def _get_acl(full_path):
@@ -89,9 +67,9 @@ def _get_acl(full_path):
     max_match = 0
     for search_path in sorted(SEARCH_PATHS):
         sp_tokens = search_path.split(os.sep)
-        # _logger.debug('sp_tokens: %s', sp_tokens)
+        _logger.debug('sp_tokens: %s', sp_tokens)
         match = _compare_tokens(fp_tokens, sp_tokens)
-        # _logger.debug('match: %s', match)
+        _logger.debug('match: %s', match)
         if match > max_match:
             max_match = match
             max_sp = search_path
