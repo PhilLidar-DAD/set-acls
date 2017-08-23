@@ -52,7 +52,7 @@ def _compare_tokens(fp_tokens, sp_tokens):
         else:
             break
 
-    if match == len(sp_tokens) == len(fp_tokens):
+    if match > 0 and len(sp_tokens) == len(fp_tokens):
         return 255
     else:
         return match
