@@ -46,13 +46,14 @@ def _compare_tokens(fp_tokens, sp_tokens):
     match = 0
     for fp_token, sp_token in itertools.izip(fp_tokens, sp_tokens):
         if sp_token == '*':
-            match += .5
+            match += .99
         elif fp_token == sp_token:
             match += 1
         else:
             break
 
-    if match > 0 and len(sp_tokens) == len(fp_tokens):
+    if (abs(match - len(sp_tokens)) <= 0.1
+            and len(sp_tokens) == len(fp_tokens)):
         return 255
     else:
         return match
