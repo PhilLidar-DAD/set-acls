@@ -13,6 +13,7 @@ import sys
 _logger = logging.getLogger()
 _LOG_LEVEL = logging.DEBUG
 _CONS_LOG_LEVEL = logging.INFO
+_FILE_LOG_LEVEL = logging.DEBUG
 DEVNULL = open(os.devnull, "w")
 OWN_USR = "datamanager"
 OWN_GRP = "data-managrs"
@@ -163,6 +164,11 @@ def _setup_logging(args):
     ch.setFormatter(formatter)
     _logger.addHandler(ch)
 
+    fh = logging.FileHandler('logs/set_acls.log', mode='w')
+    fh.setLevel(_FILE_LOG_LEVEL)
+    fh.setFormatter(formatter)
+    _logger.addHandler(fh)
+
 
 def _parse_arguments():
     # Parse arguments
@@ -225,7 +231,7 @@ if __name__ == "__main__":
             # for dirname in all_dirs:
             #     _apply_acl(root, dirname)
 
-        _logger.info('WORKERS: %s', WORKERS)
+            _logger.info('WORKERS: %s', WORKERS)
             _logger.info('%s', root)
             dir_list.append(root)
             file_list += [os.path.join(root, filename) for filename in files]
